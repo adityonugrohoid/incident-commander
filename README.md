@@ -5,8 +5,20 @@
 ![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Event Driven](https://img.shields.io/badge/architecture-event--driven-blueviolet.svg)
 ![AI](https://img.shields.io/badge/model-gemini--2.0--flash--lite-orange.svg)
+![Production Ready](https://img.shields.io/badge/readiness-prod--ready-green.svg)
 
 > **"Noise-Canceling" for DevOps.** An asynchronous log processor that uses Tumbling Windows to condense high-velocity error streams into actionable Situation Reports in real-time.
+
+## Production Readiness
+
+**Level: Prod Ready**
+
+This system demonstrates production-focused architecture with:
+- **Event-driven async architecture** using Python asyncio for non-blocking I/O
+- **Tumbling window batching** pattern for efficient log processing
+- **Pydantic schema enforcement** ensuring structured, validated outputs
+- **Comprehensive test coverage** for core components
+- **Structured error handling** with fallback mechanisms
 
 ## ⚡ The Problem: Alert Fatigue
 Modern distributed systems generate thousands of logs per minute. When a "Meltdown" occurs (e.g., a database failure), human operators are blinded by a scrolling wall of red text, making Root Cause Analysis (RCA) slow and stressful.
@@ -14,7 +26,7 @@ Modern distributed systems generate thousands of logs per minute. When a "Meltdo
 ## 🛡️ The Solution
 **Incident Commander** sits between the raw log stream and the operator. It uses a **Tumbling Window** buffer to batch logs and a **Low-Latency LLM** (Gemini 2.0 Flash Lite) to cluster them by root cause.
 
-**Result:** A 500-log/second error spike is compressed into a single "Critical Incident" card.
+**Result:** High-velocity error streams are intelligently batched and compressed into actionable incident cards using semantic root cause clustering.
 
 ## 📸 Interface Modes
 
@@ -23,7 +35,7 @@ In normal operations, the system filters background noise. The "System Status" r
 ![Normal State](assets/normal_screenshot.png)
 
 ### 2. Incident Response Mode (The "Meltdown")
-When a log spike occurs (e.g., 500 logs/sec), the **Tumbling Window** activates. Instead of flooding the screen with 3,000 raw lines, the system correlates them into a single "Critical Incident" card, achieving a **74x Noise Reduction**.
+When a log spike occurs, the **Tumbling Window** activates. Instead of flooding the screen with thousands of raw lines, the system correlates them into actionable "Critical Incident" cards using semantic clustering.
 ![Meltdown State](assets/meltdown_screenshot.png)
 
 ## System Architecture
@@ -102,6 +114,22 @@ pytest tests/
 pytest tests/ -v
 ```
 
+## Notable Code
+
+This repository demonstrates several key architectural patterns and implementations. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
+
+- Tumbling window batching implementation
+- Async event-driven architecture
+- Pydantic schema enforcement for LLM outputs
+- Non-blocking I/O patterns
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Adityo Nugroho**  
+- Portfolio: https://adityonugrohoid.github.io  
+- GitHub: https://github.com/adityonugrohoid  
+- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
