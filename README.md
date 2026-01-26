@@ -1,24 +1,13 @@
 # Incident Commander: Event-Driven Log Analysis
 
-> 🔺 **Part of the [TRINITY Project](../README.md)** - An end-to-end AI-powered Network Operations Suite
-
 ![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![Event Driven](https://img.shields.io/badge/architecture-event--driven-blueviolet.svg)
 ![AI](https://img.shields.io/badge/model-gemini--2.0--flash--lite-orange.svg)
-![Production Ready](https://img.shields.io/badge/readiness-prod--ready-green.svg)
+![TRINITYProject](https://img.shields.io/badge/project-TRINITY-blueviolet.svg)
 
-> **"Noise-Canceling" for DevOps.** An asynchronous log processor that uses Tumbling Windows to condense high-velocity error streams into actionable Situation Reports in real-time.
+**"Noise-Canceling" for DevOps.** An asynchronous log processor that uses Tumbling Windows to condense high-velocity error streams into actionable Situation Reports in real-time.
 
-## Production Readiness
-
-**Level: Prod Ready**
-
-This system demonstrates production-focused architecture with:
-- **Event-driven async architecture** using Python asyncio for non-blocking I/O
-- **Tumbling window batching** pattern for efficient log processing
-- **Pydantic schema enforcement** ensuring structured, validated outputs
-- **Comprehensive test coverage** for core components
-- **Structured error handling** with fallback mechanisms
+> 🔗 **Part of the TRINITY Project** | An end-to-end AI-powered Network Operations Suite
 
 ## ⚡ The Problem: Alert Fatigue
 Modern distributed systems generate thousands of logs per minute. When a "Meltdown" occurs (e.g., a database failure), human operators are blinded by a scrolling wall of red text, making Root Cause Analysis (RCA) slow and stressful.

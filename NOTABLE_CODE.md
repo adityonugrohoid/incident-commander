@@ -1,8 +1,6 @@
 # Notable Code: Incident Commander
 
-**Production Readiness Level:** Prod Ready
-
-This document highlights key code sections that demonstrate the technical strengths and architectural patterns implemented in this repository.
+This document highlights key code sections that demonstrate the technical strengths and architectural patterns implemented in this event-driven AI system.
 
 ## Overview
 
