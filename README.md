@@ -1,93 +1,194 @@
-# Incident Commander: Event-Driven Log Analysis
+<div align="center">
 
-![Python](https://img.shields.io/badge/python-3.12+-blue.svg)
-![Event Driven](https://img.shields.io/badge/architecture-event--driven-blueviolet.svg)
-![AI](https://img.shields.io/badge/model-gemini--2.0--flash--lite-orange.svg)
-![TRINITYProject](https://img.shields.io/badge/project-TRINITY-blueviolet.svg)
+# Incident Commander
 
-**"Noise-Canceling" for DevOps.** An asynchronous log processor that uses Tumbling Windows to condense high-velocity error streams into actionable Situation Reports in real-time.
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 🔗 **Part of the TRINITY Project** | An end-to-end AI-powered Network Operations Suite
+**Async log analyzer that condenses high-velocity error streams into structured incident reports using Gemini 2.0 Flash Lite and tumbling-window batching.**
 
-## ⚡ The Problem: Alert Fatigue
-Modern distributed systems generate thousands of logs per minute. When a "Meltdown" occurs (e.g., a database failure), human operators are blinded by a scrolling wall of red text, making Root Cause Analysis (RCA) slow and stressful.
+[Getting Started](#getting-started) | [Usage](#usage) | [Architecture](#architecture)
 
-## 🛡️ The Solution
-**Incident Commander** sits between the raw log stream and the operator. It uses a **Tumbling Window** buffer to batch logs and a **Low-Latency LLM** (Gemini 2.0 Flash Lite) to cluster them by root cause.
+</div>
 
-**Result:** High-velocity error streams are intelligently batched and compressed into actionable incident cards using semantic root cause clustering.
+---
 
-## 📸 Interface Modes
+## Table of Contents
 
-### 1. Steady State Monitoring
-In normal operations, the system filters background noise. The "System Status" remains green, and only meaningful events are logged.
-![Normal State](assets/normal_screenshot.png)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [The Problem](#the-problem)
+- [Architecture](#architecture)
+- [Demo](#demo)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+- [Usage](#usage)
+- [Architectural Decisions](#architectural-decisions)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Known Issues](#known-issues)
+- [Related Projects](#related-projects)
+- [License](#license)
+- [Author](#author)
 
-### 2. Incident Response Mode (The "Meltdown")
-When a log spike occurs, the **Tumbling Window** activates. Instead of flooding the screen with thousands of raw lines, the system correlates them into actionable "Critical Incident" cards using semantic clustering.
-![Meltdown State](assets/meltdown_screenshot.png)
+## The Problem
 
-## System Architecture
+### Alert Fatigue in Modern Distributed Systems
+
+Distributed systems emit thousands of log lines per minute. During a failure event, operators face a wall of scrolling errors that obscures root cause and delays response. Manual triage at 500 logs/second is not viable.
+
+### The Solution
+
+Incident Commander buffers raw log events in a tumbling window (100 logs or 5 seconds, whichever triggers first), then submits each batch to Gemini 2.0 Flash Lite for root-cause clustering. The output is a single structured `IncidentReport` with severity, impacted services, and a noise reduction ratio - collapsing 3,000 raw lines into one actionable incident card.
+
+## Features
+
+- **Tumbling-window batching** - collects up to 100 logs or flushes every 5 seconds to Gemini for analysis
+- **Pydantic-enforced incident schema** - `IncidentReport` with title, severity, impacted services, summary, and noise reduction ratio
+- **Meltdown simulation mode** - toggles `ChaosGenerator` to burst 500 logs/second from `inventory-db` to test the pipeline under load
+- **Streamlit live dashboard** - real-time sidebar log stream and incident cards, normal (green) and meltdown (red) status indicators
+- **Async event loop throughout** - `asyncio.Queue` pipeline between `ChaosGenerator`, `Ingestor`, `Analyzer`, and the UI with no blocking calls
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Language | Python 3.12+ |
+| LLM | Gemini 2.0 Flash Lite (`google-generativeai`) |
+| Async runtime | `asyncio` event loop |
+| Schema validation | Pydantic 2 |
+| Dashboard | Streamlit |
+| Package manager | uv |
+
+## Architecture
 
 ```mermaid
-graph LR
-    subgraph "Ingestion Layer"
-        LOGS[Log Emitter] -- "High Velocity (500/s)" --> WINDOW[Tumbling Window]
-        WINDOW -- "Batch (5s)" --> AGENT[Analyzer Agent]
-    end
+graph TD
+    CG["ChaosGenerator\n(10/s normal, 500/s meltdown)"]
+    IN["Ingestor\n(asyncio.Queue)"]
+    TW["Tumbling Window\n(100 logs or 5s)"]
+    AZ["Analyzer\n(Gemini 2.0 Flash Lite)"]
+    IR["IncidentReport\n(Pydantic schema)"]
+    UI["Streamlit Dashboard"]
 
-    subgraph "Reasoning Engine"
-        LLM[Gemini 2.0 Flash Lite]
-    end
+    CG -->|"async log stream"| IN
+    IN -->|"batch flush"| TW
+    TW -->|"raw batch"| AZ
+    AZ -->|"structured report"| IR
+    IR -->|"incident card"| UI
 
-    subgraph "Visualization"
-        UI[Streamlit Dashboard]
-    end
-    
-    AGENT -- "Raw Batch" --> LLM
-    LLM -- "Correlated Incident" --> AGENT
-    AGENT -- "Situation Report" --> UI
-    
-    style WINDOW fill:#ff9900,stroke:#333,stroke-width:2px
+    style CG fill:#0f3460,color:#fff
+    style IN fill:#16213e,color:#fff
+    style TW fill:#0f3460,color:#fff
+    style AZ fill:#533483,color:#fff
+    style IR fill:#16213e,color:#fff
+    style UI fill:#0f3460,color:#fff
 ```
+
+## Demo
+
+| Mode | Screenshot |
+|------|------------|
+| Steady-state monitoring | ![Normal state](assets/normal_screenshot.png) |
+| Meltdown (500 logs/s) | ![Meltdown state](assets/meltdown_screenshot.png) |
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.12+
+- [uv](https://github.com/astral-sh/uv) package manager
+- Google Gemini API key (obtain from [Google AI Studio](https://aistudio.google.com/))
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/adityonugrohoid/incident-commander.git
+   cd incident-commander
+   ```
+
+2. Install dependencies:
+   ```bash
+   uv sync
+   ```
+
+### Configuration
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your key:
+
+<details>
+<summary>Full configuration reference</summary>
+
+```bash
+# -- Required -------------------------------------------
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+</details>
+
+## Usage
+
+Start the Streamlit dashboard:
+
+```bash
+uv run streamlit run src/app.py
+```
+
+Once the app loads in your browser:
+
+1. Click "Start Monitoring" to begin the async log pipeline in normal mode (10 logs/second).
+2. Check "Simulate Meltdown" to burst the generator to 500 logs/second and trigger the tumbling-window analyzer.
+3. Watch incident cards appear in the "Situation Report" panel, each one condensing an entire batch into a single `IncidentReport`.
 
 ## Architectural Decisions
 
-### 1. Concurrency: asyncio vs. Threading
-* **Decision:** Built the ingestion pipeline using Python's `asyncio` event loops.
-* **Reasoning:** Log ingestion is I/O bound. Using async allows the system to absorb a "packet storm" (500+ logs/sec) without blocking the UI or dropping packets, which would occur with synchronous processing.
+### 1. Concurrency: asyncio over threading
 
-### 2. Model Selection: Gemini 2.0 Flash Lite
-* **Decision:** Utilized the "Flash-Lite" variant over Pro or Ultra models.
-* **Reasoning:** In observability, latency is the primary constraint. Flash Lite provides sub-second reasoning capabilities at a fraction of the cost, enabling "always-on" monitoring without blowing the budget.
+**Decision:** Built the ingestion pipeline on Python's `asyncio` event loop throughout (`ChaosGenerator`, `Ingestor`, `Analyzer`).
 
-### 3. Output Engineering: Pydantic Enforcement
-* **Decision:** Forced the LLM to adhere to a strict `IncidentReport` schema using Pydantic.
-* **Reasoning:** Downstream automation (e.g., PagerDuty integration) requires structured data. By enforcing a schema, we prevent the "hallucination" of invalid fields and ensure the UI always renders correctly.
+**Reasoning:** Log ingestion is I/O-bound. `asyncio` absorbs packet storms (500+ logs/second) without blocking the Streamlit UI or dropping events. Threading would require lock coordination across the producer-consumer boundary and complicates Streamlit's single-thread render model.
 
-## Tech Stack
-* **Runtime:** Python 3.12+ (uv)
-* **LLM:** Google Gemini 2.0 Flash Lite
-* **Architecture:** Python `asyncio` (Event Loop)
-* **Validation:** Pydantic
-* **Frontend:** Streamlit
+### 2. Model selection: Gemini 2.0 Flash Lite
 
-## ⚠️ Known Issues
-**Google Generative AI SDK Deprecation:**  
-The `google-generativeai` package is deprecated and support ended as of January 2025. Migration to `google-genai` is required before **June 24, 2026**. The current implementation works but will need updating. See [migration guide](https://ai.google.dev/gemini-api/docs/migrate) for details.
+**Decision:** Flash Lite rather than Pro or Ultra variants.
 
-## Quick Start
+**Reasoning:** Observability workloads are latency-constrained, not accuracy-constrained. Flash Lite delivers sub-second reasoning at a fraction of the cost, making always-on batch analysis viable. Higher-tier models would exceed the response budget per 5-second window.
 
-```bash
-# 1. Install dependencies
-uv sync
+### 3. Output contract: Pydantic `IncidentReport` schema
 
-# 2. Setup Secrets
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY=...
+**Decision:** Forced LLM output to conform to a strict `IncidentReport` Pydantic model via JSON response MIME type.
 
-# 3. Run the Dashboard
-uv run streamlit run src/app.py
+**Reasoning:** Downstream automation (alerting, PagerDuty integration) requires deterministic field names and types. Pydantic validation catches hallucinated fields at parse time rather than silently propagating invalid data to the UI.
+
+## Project Structure
+
+```
+incident-commander/
+├── src/
+│   ├── app.py                     # Streamlit dashboard and async monitoring loop
+│   ├── agent.py                   # Analyzer class + IncidentReport Pydantic model
+│   ├── ingestor.py                # Tumbling-window batch consumer (asyncio.Queue)
+│   └── generators.py              # ChaosGenerator: normal + meltdown log streams
+│
+├── tests/
+│   ├── test_agent.py              # Analyzer unit tests (mocked Gemini responses)
+│   ├── test_generators.py         # ChaosGenerator output format tests
+│   └── test_ingestor.py           # Ingestor batching and flush behavior tests
+│
+├── assets/
+│   ├── normal_screenshot.png      # Dashboard in steady-state mode
+│   └── meltdown_screenshot.png    # Dashboard during meltdown simulation
+│
+├── .env.example                   # Configuration template
+├── pyproject.toml                 # uv project manifest
+└── main.py                        # Placeholder entry point
 ```
 
 ## Testing
@@ -97,28 +198,29 @@ uv run streamlit run src/app.py
 uv sync --extra dev
 
 # Run all tests
-pytest tests/
+uv run pytest tests/ -v
 
-# Run with verbose output
-pytest tests/ -v
+# Run a specific module
+uv run pytest tests/test_agent.py -v
 ```
 
-## Notable Code
+## Known Issues
 
-This repository demonstrates several key architectural patterns and implementations. See [NOTABLE_CODE.md](NOTABLE_CODE.md) for detailed code examples highlighting:
+| Issue | Impact | Workaround |
+|-------|--------|------------|
+| `google-generativeai` SDK deprecated (Jan 2025, support ends Jun 2026) | Medium - will break after Jun 24, 2026 | Migrate to `google-genai`; see the [migration guide](https://ai.google.dev/gemini-api/docs/migrate) |
 
-- Tumbling window batching implementation
-- Async event-driven architecture
-- Pydantic schema enforcement for LLM outputs
-- Non-blocking I/O patterns
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [noc-oracle](https://github.com/adityonugrohoid/noc-oracle) | Network health Q&A over structured telemetry using Gemini |
+| [net-ops-agent](https://github.com/adityonugrohoid/net-ops-agent) | Autonomous network operations agent for fault triage and remediation |
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 
-**Adityo Nugroho**  
-- Portfolio: https://adityonugrohoid.github.io  
-- GitHub: https://github.com/adityonugrohoid  
-- LinkedIn: https://www.linkedin.com/in/adityonugrohoid/
+**Adityo Nugroho** ([@adityonugrohoid](https://github.com/adityonugrohoid))
