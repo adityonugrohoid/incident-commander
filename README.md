@@ -2,7 +2,10 @@
 
 # Incident Commander
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
+[![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet)](https://github.com/astral-sh/uv)
+[![Gemini 2.0 Flash](https://img.shields.io/badge/Gemini-2.0%20Flash-4285F4.svg)](https://ai.google.dev/gemini-api/docs/models)
+[![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Async log analyzer that condenses high-velocity error streams into structured incident reports using Gemini 2.0 Flash Lite and tumbling-window batching.**
@@ -214,8 +217,8 @@ uv run pytest tests/test_agent.py -v
 
 | Project | Description |
 |---------|-------------|
-| [noc-oracle](https://github.com/adityonugrohoid/noc-oracle) | Network health Q&A over structured telemetry using Gemini |
-| [net-ops-agent](https://github.com/adityonugrohoid/net-ops-agent) | Autonomous network operations agent for fault triage and remediation |
+| [noc-oracle](https://github.com/adityonugrohoid/noc-oracle) | Runbook RAG engine mapping error codes to verified procedures (hybrid search + Gemini 2.0 Flash) |
+| [net-ops-agent](https://github.com/adityonugrohoid/net-ops-agent) | Agentic network-ops assistant with mandatory human approval (Gemini 2.0 Flash function calling) |
 
 ## License
 
