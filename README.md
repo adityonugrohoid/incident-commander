@@ -2,13 +2,13 @@
 
 # Incident Commander
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet)](https://github.com/astral-sh/uv)
 [![Gemini 2.0 Flash](https://img.shields.io/badge/Gemini-2.0%20Flash-4285F4.svg)](https://ai.google.dev/gemini-api/docs/models)
-[![Streamlit](https://img.shields.io/badge/Streamlit-app-FF4B4B.svg)](https://streamlit.io/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.52+-FF4B4B.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Async log analyzer that condenses high-velocity error streams into structured incident reports using Gemini 2.0 Flash Lite and tumbling-window batching.**
+**Async log analyzer that condenses high-velocity error streams into structured incident reports using Gemini 2.0 Flash Lite and tumbling-window batching**
 
 [Getting Started](#getting-started) | [Usage](#usage) | [Architecture](#architecture)
 
@@ -18,9 +18,9 @@
 
 ## Table of Contents
 
+- [The Problem](#the-problem)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [The Problem](#the-problem)
 - [Architecture](#architecture)
 - [Demo](#demo)
 - [Getting Started](#getting-started)
